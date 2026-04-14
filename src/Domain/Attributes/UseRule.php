@@ -1,0 +1,19 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Zolta\Domain\Attributes;
+
+use Attribute;
+
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
+final class UseRule
+{
+    /**
+     * @param  array<string, mixed>  $options
+     */
+    public function __construct(
+        public string $ruleClass,
+        public array $options = [] // associative array
+    ) {}
+}

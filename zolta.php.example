@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * Zolta Forge Configuration
+ *
+ * This file allows you to configure Zolta Forge for your application.
+ * Copy this file to your project root as 'zolta.php' and customize as needed.
+ */
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Framework Adapter
+    |--------------------------------------------------------------------------
+    |
+    | Specify which framework adapter Zolta should use for this application.
+    | If not specified, Zolta will auto-detect the framework.
+    |
+    | Available adapters:
+    | - Zolta\Laravel\Infrastructure\Framework\LaravelFrameworkAdapter
+    | - Zolta\Symfony\Infrastructure\Framework\SymfonyFrameworkAdapter
+    |
+    | You can also create custom adapters by implementing
+    | Zolta\Core\Infrastructure\Framework\FrameworkAdapterInterface
+    |
+    | Comment out or remove this line to enable auto-detection.
+    */
+
+    'adapter' => \Zolta\Laravel\Infrastructure\Framework\LaravelFrameworkAdapter::class,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authorization Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure authorization abilities and permissions.
+    | This will be merged with any configuration loaded from the framework.
+    |
+    */
+
+    'authorization' => [
+        'abilities' => [
+            'manage_users' => ['users.read', 'users.write', 'users.delete'],
+            'view_reports' => ['reports.read'],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cache Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure caching behavior for Zolta components.
+    |
+    */
+
+    'cache' => [
+        'routes' => true,
+        'commands' => [
+            'skip' => ['make:migration', 'package:discover'],
+        ],
+    ],
+];

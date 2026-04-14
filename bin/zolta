@@ -1,0 +1,78 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Symfony\Component\Process\Process;
+
+$autoload = __DIR__ . '/../vendor/autoload.php';
+if (!file_exists($autoload)) {
+    $autoload = __DIR__ . '/../../../autoload.php';
+}
+
+if (!file_exists($autoload)) {
+    fwrite(STDERR, "Unable to locate Composer autoload.php. Make sure dependencies are installed.\n");
+    exit(1);
+}
+
+require $autoload;
+
+/**
+ * Locate the nearest directory containing composer.json starting from a path.
+ */
+function zolta_find_project_root(string $start): ?string
+{
+    $dir = realpath($start);
+    $fallback = null;
+
+    while ($dir !== false) {
+        if (file_exists($dir . '/composer.json')) {
+            $fallback = $dir;
+        }
+        if (file_exists($dir . '/artisan')) {
+            return $dir;
+        }
+        $parent = dirname($dir);
+        if ($parent === $dir) {
+            break;
+        }
+        $dir = $parent;
+    }
+
+    return $fallback;
+}
+
+$projectRoot = zolta_find_project_root(__DIR__);
+if ($projectRoot === null) {
+    fwrite(STDERR, "Unable to locate project root (composer.json not found).\n");
+    exit(1);
+}
+
+$artisan = $projectRoot . '/artisan';
+if (!file_exists($artisan)) {
+    fwrite(STDERR, "Laravel artisan entrypoint not found at {$artisan}.\n");
+    exit(1);
+}
+
+$argv = $_SERVER['argv'] ?? [];
+array_shift($argv); // drop script name
+$subcommand = array_shift($argv);
+
+if ($subcommand === null || in_array($subcommand, ['-h', '--help', 'help'], true)) {
+    echo "Usage:\n";
+    echo "  zolta dev [-- options forwarded to zolta:dev]\n";
+    exit(0);
+}
+
+if ($subcommand !== 'dev') {
+    fwrite(STDERR, "Unknown command: {$subcommand}\n");
+    exit(1);
+}
+
+$process = new Process(array_merge([PHP_BINARY, $artisan, 'zolta:dev'], $argv), $projectRoot);
+$process->setTimeout(null);
+$process->run(static function (string $type, string $buffer): void {
+    echo $buffer;
+});
+
+exit($process->getExitCode() ?? 1);
