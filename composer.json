@@ -5,23 +5,25 @@
 	"license": "proprietary",
 	"keywords": [
 		"zoltasoft",
-		"zoltasoft-forge",
+		"forge",
+		"domain",
 		"ddd",
-		"domain-driven-design",
 		"value-object",
 		"entity",
 		"aggregate-root",
-		"specification-pattern",
+		"rules",
+		"specification",
+		"policies",
+		"invariants",
+		"transformer",
 		"hexagonal-architecture",
-		"clean-architecture",
-		"domain-layer",
 		"php",
 		"laravel"
 	],
 	"authors": [
 		{
 			"name": "Redouane Taleb",
-			"homepage": "https://github.com/redouanet"
+			"homepage": "https://github.com/redouaneT"
 		}
 	],
 	"require": {
