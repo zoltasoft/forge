@@ -46,7 +46,7 @@ Every stage is **declarative** (PHP 8 attributes), **composable** (`.and()`, `.o
 ## Installation
 
 ```bash
-composer require zoltasoft/forge
+composer require zolta/forge
 ```
 
 Laravel adapter discovery is automatic through Composer metadata.
@@ -153,7 +153,7 @@ ContainerRegistry::set(app()); // PSR-11 compatible
 $logger = ContainerRegistry::resolve(LoggerInterface::class);
 ```
 
-Consumer packages (`zoltasoft/cqrs`, `zoltasoft/http`) use this same mechanism to stay decoupled.
+Consumer packages (`zolta/cqrs`, `zolta/http`) use this same mechanism to stay decoupled.
 
 ---
 
