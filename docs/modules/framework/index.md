@@ -113,7 +113,7 @@ Register your adapter in `composer.json`:
 
 ```json
 {
-    "name": "zolta/forge-laravel-adapter",
+    "name": "zoltasoft/forge-laravel-adapter",
     "extra": {
         "zolta-framework-adapter": "Zolta\\Adapters\\Laravel\\LaravelAdapter"
     }

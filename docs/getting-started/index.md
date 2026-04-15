@@ -13,7 +13,7 @@ navigation:
 Install via Composer:
 
 ```bash
-composer require zolta/forge
+composer require zoltasoft/forge
 ```
 
 ### Laravel
