@@ -22,6 +22,165 @@ use Zolta\Domain\ValueObjects\VOConstructionContext;
 
 trait VOAutoResolution
 {
+    /** @var array<string, \ReflectionClass<static>> */
+    private static array $voReflectionCache = [];
+
+    /** @var array<string, list<string>> */
+    private static array $voAllPropertyNamesCache = [];
+
+    /** @var array<string, list<string>> */
+    private static array $voArrayPropertyNamesCache = [];
+
+    /** @var array<string, array<string, list<array{class: string, arguments: array}>>> */
+    private static array $voPropertyAttrsCache = [];
+
+    /** @var array<string, array<string, array{typeName: ?string, isVO: bool}>> */
+    private static array $voPropertyTypesCache = [];
+
+    /**
+     * Return cached ReflectionClass for the current VO class.
+     *
+     * @return \ReflectionClass<static>
+     */
+    private static function cachedReflection(): \ReflectionClass
+    {
+        return self::$voReflectionCache[static::class]
+            ??= new \ReflectionClass(static::class);
+    }
+
+    /**
+     * Return cached list of all settable property names (excluding internals).
+     *
+     * @return list<string>
+     */
+    private static function cachedAllPropertyNames(): array
+    {
+        if (isset(self::$voAllPropertyNamesCache[static::class])) {
+            return self::$voAllPropertyNamesCache[static::class];
+        }
+
+        $ref = static::cachedReflection();
+        $names = [];
+        foreach (
+            $ref->getProperties(
+                ReflectionProperty::IS_PRIVATE |
+                    ReflectionProperty::IS_PROTECTED |
+                    ReflectionProperty::IS_PUBLIC
+            ) as $prop
+        ) {
+            if ($prop->isStatic()) {
+                continue;
+            }
+            $name = $prop->getName();
+            if (in_array($name, ['getters', 'context'], true)) {
+                continue;
+            }
+            $names[] = $name;
+        }
+
+        return self::$voAllPropertyNamesCache[static::class] = $names;
+    }
+
+    /**
+     * Return cached list of array-typed property names (for pre-initialization).
+     *
+     * @return list<string>
+     */
+    private static function cachedArrayPropertyNames(): array
+    {
+        if (isset(self::$voArrayPropertyNamesCache[static::class])) {
+            return self::$voArrayPropertyNamesCache[static::class];
+        }
+
+        $ref = static::cachedReflection();
+        $names = [];
+        $currentRef = $ref;
+        while ($currentRef) {
+            foreach ($currentRef->getProperties() as $p) {
+                if ($p->isStatic()) {
+                    continue;
+                }
+                if (
+                    $p->getType() instanceof \ReflectionNamedType &&
+                    $p->getType()->getName() === 'array'
+                ) {
+                    $names[] = $p->getName();
+                }
+            }
+            $currentRef = $currentRef->getParentClass();
+        }
+
+        return self::$voArrayPropertyNamesCache[static::class] = array_unique($names);
+    }
+
+    /**
+     * Return cached property attributes keyed by property name.
+     *
+     * @return array<string, list<array{class: string, arguments: array}>>
+     */
+    private static function cachedPropertyAttrs(): array
+    {
+        if (isset(self::$voPropertyAttrsCache[static::class])) {
+            return self::$voPropertyAttrsCache[static::class];
+        }
+
+        $ref = static::cachedReflection();
+        $result = [];
+        foreach (
+            $ref->getProperties(
+                ReflectionProperty::IS_PRIVATE |
+                    ReflectionProperty::IS_PROTECTED |
+                    ReflectionProperty::IS_PUBLIC
+            ) as $prop
+        ) {
+            if ($prop->isStatic()) {
+                continue;
+            }
+            $attrs = [];
+            foreach ($prop->getAttributes() as $attr) {
+                $attrs[] = [
+                    'class' => $attr->getName(),
+                    'arguments' => $attr->getArguments(),
+                ];
+            }
+            $result[$prop->getName()] = $attrs;
+        }
+
+        return self::$voPropertyAttrsCache[static::class] = $result;
+    }
+
+    /**
+     * Return cached property type info keyed by property name.
+     *
+     * @return array<string, array{typeName: ?string, isVO: bool}>
+     */
+    private static function cachedPropertyTypes(): array
+    {
+        if (isset(self::$voPropertyTypesCache[static::class])) {
+            return self::$voPropertyTypesCache[static::class];
+        }
+
+        $ref = static::cachedReflection();
+        $result = [];
+        foreach (
+            $ref->getProperties(
+                ReflectionProperty::IS_PRIVATE |
+                    ReflectionProperty::IS_PROTECTED |
+                    ReflectionProperty::IS_PUBLIC
+            ) as $prop
+        ) {
+            if ($prop->isStatic()) {
+                continue;
+            }
+            $type = $prop->getType();
+            $typeName = ($type instanceof \ReflectionNamedType) ? $type->getName() : null;
+            $isVO = $typeName !== null && is_subclass_of($typeName, VO::class);
+            $result[$prop->getName()] = ['typeName' => $typeName, 'isVO' => $isVO];
+        }
+
+        return self::$voPropertyTypesCache[static::class] = $result;
+    }
+
     /**
      * Factory-style entry point — resolves and instantiates.
      *
@@ -46,22 +205,15 @@ trait VOAutoResolution
         $runtimePreprocessors = $voConstructionContext->runtimePreprocessors;
         $runtimeOptions = $voConstructionContext->runtimeOptions;
 
-        $reflectionClass = new ReflectionClass(static::class);
+        $reflectionClass = static::cachedReflection();
         $placeholder = $reflectionClass->newInstanceWithoutConstructor();
 
-        // --- Initialize uninitialized typed array properties (class + parents)
-        $currentRef = $reflectionClass;
-        while ($currentRef) {
-            foreach ($currentRef->getProperties() as $p) {
-                if (
-                    $p->getType() instanceof \ReflectionNamedType &&
-                    $p->getType()->getName() === 'array' &&
-                    ! $p->isInitialized($placeholder)
-                ) {
-                    $p->setValue($placeholder, []);
-                }
+        // --- Initialize uninitialized typed array properties (cached list)
+        foreach (static::cachedArrayPropertyNames() as $arrayPropName) {
+            $p = $reflectionClass->getProperty($arrayPropName);
+            if (! $p->isInitialized($placeholder)) {
+                $p->setValue($placeholder, []);
             }
-            $currentRef = $currentRef->getParentClass();
         }
 
         // --- Normalize preprocessor keys (strip nested prefixes like "email.address")
@@ -72,26 +224,10 @@ trait VOAutoResolution
         }
         $runtimePreprocessors = $normalizedRuntimePreprocessors;
 
-        // --- Step 0: Collect VO properties (only from $data keys)
-        $voProperties = [];
+        // --- Step 0: Collect VO properties (only from $data keys, using cached property list)
+        $allProps = static::cachedAllPropertyNames();
         $incomingKeys = array_keys($data);
-        foreach (
-            $reflectionClass->getProperties(
-                ReflectionProperty::IS_PRIVATE |
-                    ReflectionProperty::IS_PROTECTED |
-                    ReflectionProperty::IS_PUBLIC
-            ) as $reflectionProperty
-        ) {
-            $name = $reflectionProperty->getName();
-            // Skip internals and props not in $data
-            if (
-                ! in_array($name, $incomingKeys, true) ||
-                in_array($name, ['getters', 'context'], true)
-            ) {
-                continue;
-            }
-            $voProperties[] = $name;
-        }
+        $voProperties = array_values(array_intersect($allProps, $incomingKeys));
 
         // --- Step 1: Validate runtime preprocessors (after normalization)
         foreach (array_keys($runtimePreprocessors) as $propName) {
@@ -143,6 +279,8 @@ trait VOAutoResolution
         };
 
         // --- Step 3: Process properties
+        $cachedAttrs = static::cachedPropertyAttrs();
+        $cachedTypes = static::cachedPropertyTypes();
         $values = [];
         foreach ($voProperties as $voProperty) {
             $value = $data[$voProperty] ?? null;
@@ -152,18 +290,17 @@ trait VOAutoResolution
                 $value = $preprocessors[$voProperty]($value);
             }
 
-            // 3.2 Apply Transform / Rule / Specification attributes
-            $reflectionProperty = $reflectionClass->getProperty($voProperty);
-            $propAttrs = $reflectionProperty->getAttributes();
+            // 3.2 Apply Transform / Rule / Specification attributes (from cache)
+            $propAttrs = $cachedAttrs[$voProperty] ?? [];
             $propRuntimeBucket = $bucketForProp($runtimeOptions, $voProperty);
 
             // First: TRANSFORMS (order matters — transform before validation)
             foreach ($propAttrs as $attr) {
-                if ($attr->getName() !== Transform::class) {
+                if ($attr['class'] !== Transform::class) {
                     continue;
                 }
 
-                $args = $attr->getArguments();
+                $args = $attr['arguments'];
                 $transformerClass = $args[0] ?? null;
                 if (! $transformerClass) {
                     continue;
@@ -193,8 +330,8 @@ trait VOAutoResolution
 
             // Second: RULES and SPECIFICATIONS (validate after transforms)
             foreach ($propAttrs as $propAttr) {
-                $attrClass = $propAttr->getName();
-                $args = $propAttr->getArguments();
+                $attrClass = $propAttr['class'];
+                $args = $propAttr['arguments'];
 
                 // Rules
                 if ($attrClass === UseRule::class) {
@@ -254,19 +391,15 @@ trait VOAutoResolution
             $values[$voProperty] = $value;
 
             // --- Step 3.3: If value is a nested ValueObject, run its class-level policies/invariants
-            $type = $reflectionProperty->getType();
-            if ($type instanceof \ReflectionNamedType) {
-                $typeName = $type->getName();
-
-                // detect nested VO
-                if (is_subclass_of($typeName, VO::class)) {
-                    if (is_array($value)) {
-                        // recursively resolve using the same runtime context
-                        $value = $typeName::resolve($value, $voConstructionContext);
-                    }
-
-                    // once constructed, its class-level policy will apply inside its own resolveInternal()
+            $typeInfo = $cachedTypes[$voProperty] ?? null;
+            if ($typeInfo !== null && $typeInfo['isVO']) {
+                $typeName = $typeInfo['typeName'];
+                if (is_array($value)) {
+                    // recursively resolve using the same runtime context
+                    $value = $typeName::resolve($value, $voConstructionContext);
                 }
+
+                // once constructed, its class-level policy will apply inside its own resolveInternal()
             }
         }
 
@@ -308,7 +441,7 @@ trait VOAutoResolution
      */
     protected static function new(array $resolved): static
     {
-        $reflectionClass = new ReflectionClass(static::class);
+        $reflectionClass = static::cachedReflection();
         $instance = $reflectionClass->newInstanceWithoutConstructor();
 
         foreach ($resolved as $name => $value) {
