@@ -9,12 +9,12 @@ SCRIPT ?= qa
 
 # Delegate to the monorepo test runner so installation/cleanup is consistent
 # Usage: make run SCRIPT=qa    (keeps old behaviour)
-# The monorepo script signature: scripts/run-package-tests.sh <pkg-dir> <script> [keep]
+# The monorepo script signature: scripts/run-zoltasoft-forge-package-tests.sh <pkg-dir> <script> [keep]
 run:
 	@echo "Checking for monorepo runner..."
-	@if [ -x ../../scripts/run-package-tests.sh ]; then \
-		echo "Delegating to monorepo scripts/run-package-tests.sh"; \
-		../../scripts/run-package-tests.sh . $(SCRIPT) $(KEEP); \
+	@if [ -x scripts/run-zoltasoft-forge-package-tests.sh ]; then \
+		echo "Delegating to monorepo scripts/run-zoltasoft-forge-package-tests.sh"; \
+		scripts/run-zoltasoft-forge-package-tests.sh . $(SCRIPT) $(KEEP); \
 	else \
 		echo "Monorepo runner not found — installing locally and running $(SCRIPT)"; \
 		composer install --no-interaction --prefer-dist --ansi; \

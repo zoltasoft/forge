@@ -4,7 +4,7 @@
 	"type": "library",
 	"license": "proprietary",
 	"keywords": [
-		"zolta",
+		"zoltasoft",
 		"zoltasoft-forge",
 		"ddd",
 		"domain-driven-design",
@@ -21,7 +21,7 @@
 	"authors": [
 		{
 			"name": "Redouane Taleb",
-			"homepage": "https://github.com/redouane-taleb"
+			"homepage": "https://github.com/redouanet"
 		}
 	],
 	"require": {
@@ -62,12 +62,12 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"scripts": {
-		"test": "APP_SERVICES_CACHE=/tmp/zolta-forge-services.php APP_PACKAGES_CACHE=/tmp/zolta-forge-packages.php APP_CONFIG_CACHE=/tmp/zolta-forge-config.php APP_ROUTES_CACHE=/tmp/zolta-forge-routes.php APP_EVENTS_CACHE=/tmp/zolta-forge-events.php PHPUNIT_RESULT_CACHE=/tmp/zolta-forge-phpunit.result.cache phpunit -c phpunit.xml",
-		"test:unit": "APP_SERVICES_CACHE=/tmp/zolta-forge-services.php APP_PACKAGES_CACHE=/tmp/zolta-forge-packages.php APP_CONFIG_CACHE=/tmp/zolta-forge-config.php APP_ROUTES_CACHE=/tmp/zolta-forge-routes.php APP_EVENTS_CACHE=/tmp/zolta-forge-events.php PHPUNIT_RESULT_CACHE=/tmp/zolta-forge-phpunit.result.cache phpunit -c phpunit.xml --testsuite Unit",
-		"test:integration": "APP_SERVICES_CACHE=/tmp/zolta-forge-services.php APP_PACKAGES_CACHE=/tmp/zolta-forge-packages.php APP_CONFIG_CACHE=/tmp/zolta-forge-config.php APP_ROUTES_CACHE=/tmp/zolta-forge-routes.php APP_EVENTS_CACHE=/tmp/zolta-forge-events.php PHPUNIT_RESULT_CACHE=/tmp/zolta-forge-phpunit.result.cache phpunit -c phpunit.xml --testsuite Integration",
+		"test": "APP_SERVICES_CACHE=/tmp/forge-services.php APP_PACKAGES_CACHE=/tmp/forge-packages.php APP_CONFIG_CACHE=/tmp/forge-config.php APP_ROUTES_CACHE=/tmp/forge-routes.php APP_EVENTS_CACHE=/tmp/forge-events.php PHPUNIT_RESULT_CACHE=/tmp/forge-phpunit.result.cache phpunit -c phpunit.xml",
+		"test:unit": "APP_SERVICES_CACHE=/tmp/forge-services.php APP_PACKAGES_CACHE=/tmp/forge-packages.php APP_CONFIG_CACHE=/tmp/forge-config.php APP_ROUTES_CACHE=/tmp/forge-routes.php APP_EVENTS_CACHE=/tmp/forge-events.php PHPUNIT_RESULT_CACHE=/tmp/forge-phpunit.result.cache phpunit -c phpunit.xml --testsuite Unit",
+		"test:integration": "APP_SERVICES_CACHE=/tmp/forge-services.php APP_PACKAGES_CACHE=/tmp/forge-packages.php APP_CONFIG_CACHE=/tmp/forge-config.php APP_ROUTES_CACHE=/tmp/forge-routes.php APP_EVENTS_CACHE=/tmp/forge-events.php PHPUNIT_RESULT_CACHE=/tmp/forge-phpunit.result.cache phpunit -c phpunit.xml --testsuite Integration",
 		"lint": "vendor/bin/pint",
 		"lint:test": "vendor/bin/pint --test",
-		"analyse": "APP_SERVICES_CACHE=/tmp/zolta-forge-services.php APP_PACKAGES_CACHE=/tmp/zolta-forge-packages.php APP_CONFIG_CACHE=/tmp/zolta-forge-config.php APP_ROUTES_CACHE=/tmp/zolta-forge-routes.php APP_EVENTS_CACHE=/tmp/zolta-forge-events.php vendor/bin/phpstan analyse",
+		"analyse": "APP_SERVICES_CACHE=/tmp/forge-services.php APP_PACKAGES_CACHE=/tmp/forge-packages.php APP_CONFIG_CACHE=/tmp/forge-config.php APP_ROUTES_CACHE=/tmp/forge-routes.php APP_EVENTS_CACHE=/tmp/forge-events.php vendor/bin/phpstan analyse",
 		"rector": "vendor/bin/rector process --dry-run",
 		"rector:fix": "vendor/bin/rector process",
 		"md": "HOME=/tmp PDEPEND_CACHE_DIR=/tmp/pdepend-cache vendor/bin/phpmd src text phpmd.xml --exclude 'src/Symfony/Console/Command/*'",
