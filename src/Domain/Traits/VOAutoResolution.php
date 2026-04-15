@@ -8,6 +8,16 @@ use DomainException;
 use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionProperty;
+use Zolta\Domain\Attributes\Transform;
+use Zolta\Domain\Attributes\UseInvariant;
+use Zolta\Domain\Attributes\UsePolicy;
+use Zolta\Domain\Attributes\UseRule;
+use Zolta\Domain\Attributes\UseSpecification;
+use Zolta\Domain\Cache\ReflectionCache;
+use Zolta\Domain\Contracts\RuleInterface;
+use Zolta\Domain\Contracts\SpecificationInterface;
+use Zolta\Domain\Contracts\TransformerInterface;
+use Zolta\Domain\Interfaces\VO;
 use Zolta\Domain\ValueObjects\VOConstructionContext;
 
 trait VOAutoResolution
@@ -33,8 +43,8 @@ trait VOAutoResolution
     protected static function resolveInternal(array $data, ?VOConstructionContext $voConstructionContext = null): array
     {
         $voConstructionContext ??= new VOConstructionContext;
-        $runtimePreprocessors = $voConstructionContext->runtimePreprocessors ?? [];
-        $runtimeOptions = $voConstructionContext->runtimeOptions ?? [];
+        $runtimePreprocessors = $voConstructionContext->runtimePreprocessors;
+        $runtimeOptions = $voConstructionContext->runtimeOptions;
 
         $reflectionClass = new ReflectionClass(static::class);
         $placeholder = $reflectionClass->newInstanceWithoutConstructor();
@@ -87,7 +97,7 @@ trait VOAutoResolution
         foreach (array_keys($runtimePreprocessors) as $propName) {
             if (! in_array($propName, $voProperties, true)) {
                 throw new InvalidArgumentException(
-                    "Runtime preprocessor cannot be applied: property '{$propName}' does not exist in ".static::class
+                    "Runtime preprocessor cannot be applied: property '{$propName}' does not exist in " . static::class
                 );
             }
         }
@@ -149,7 +159,7 @@ trait VOAutoResolution
 
             // First: TRANSFORMS (order matters — transform before validation)
             foreach ($propAttrs as $attr) {
-                if ($attr->getName() !== \Zolta\Domain\Attributes\Transform::class) {
+                if ($attr->getName() !== Transform::class) {
                     continue;
                 }
 
@@ -160,7 +170,7 @@ trait VOAutoResolution
                 }
 
                 $transformer = new $transformerClass;
-                if (! $transformer instanceof \Zolta\Domain\Contracts\TransformerInterface) {
+                if (! $transformer instanceof TransformerInterface) {
                     throw new DomainException("Transformer {$transformerClass} must implement TransformerInterface");
                 }
 
@@ -187,11 +197,11 @@ trait VOAutoResolution
                 $args = $propAttr->getArguments();
 
                 // Rules
-                if ($attrClass === \Zolta\Domain\Attributes\UseRule::class) {
+                if ($attrClass === UseRule::class) {
                     $ruleClass = $args[0] ?? null;
                     if ($ruleClass) {
                         $rule = new $ruleClass;
-                        if (! $rule instanceof \Zolta\Domain\Contracts\RuleInterface) {
+                        if (! $rule instanceof RuleInterface) {
                             throw new DomainException("Rule {$ruleClass} must implement RuleInterface");
                         }
 
@@ -217,11 +227,11 @@ trait VOAutoResolution
                 }
 
                 // Specifications
-                if ($attrClass === \Zolta\Domain\Attributes\UseSpecification::class) {
+                if ($attrClass === UseSpecification::class) {
                     $specClass = $args[0] ?? null;
                     if ($specClass) {
                         $spec = new $specClass;
-                        if (! $spec instanceof \Zolta\Domain\Contracts\SpecificationInterface) {
+                        if (! $spec instanceof SpecificationInterface) {
                             throw new DomainException("Specification {$specClass} must implement SpecificationInterface");
                         }
 
@@ -249,7 +259,7 @@ trait VOAutoResolution
                 $typeName = $type->getName();
 
                 // detect nested VO
-                if (is_subclass_of($typeName, \Zolta\Domain\Interfaces\VO::class)) {
+                if (is_subclass_of($typeName, VO::class)) {
                     if (is_array($value)) {
                         // recursively resolve using the same runtime context
                         $value = $typeName::resolve($value, $voConstructionContext);
@@ -261,7 +271,7 @@ trait VOAutoResolution
         }
 
         // --- Step 4: Apply class-level invariants & policies ---
-        $classAttrs = \Zolta\Domain\Cache\ReflectionCache::getClassAttributes(static::class);
+        $classAttrs = ReflectionCache::getClassAttributes(static::class);
         $voForClassChecks = null;
 
         foreach ($classAttrs as $classAttr) {
@@ -269,7 +279,7 @@ trait VOAutoResolution
             $args = $classAttr['arguments'] ?? [];
             $options = $runtimeOptions['class'][$attrClass] ?? ($args[1] ?? []);
 
-            if ($attrClass === \Zolta\Domain\Attributes\UseInvariant::class) {
+            if ($attrClass === UseInvariant::class) {
                 $invClass = $args[0] ?? null;
                 if ($invClass) {
                     $inv = new $invClass;
@@ -278,7 +288,7 @@ trait VOAutoResolution
                 }
             }
 
-            if ($attrClass === \Zolta\Domain\Attributes\UsePolicy::class) {
+            if ($attrClass === UsePolicy::class) {
                 $policyClass = $args[0] ?? null;
                 if ($policyClass) {
                     $policy = new $policyClass;
@@ -339,7 +349,7 @@ trait VOAutoResolution
 
                         continue;
                     } catch (\Throwable $e) {
-                        throw new DomainException("Failed to coerce enum property {$name}: ".$e->getMessage(), $e->getCode(), $e);
+                        throw new DomainException("Failed to coerce enum property {$name}: " . $e->getMessage(), $e->getCode(), $e);
                     }
                 }
             }
@@ -376,7 +386,7 @@ trait VOAutoResolution
             if (property_exists($this, $key)) {
                 return $this->$key;
             }
-            throw new InvalidArgumentException("Key {$key} is not accessible on ".static::class);
+            throw new InvalidArgumentException("Key {$key} is not accessible on " . static::class);
         }
 
         if (is_array($key)) {
@@ -401,12 +411,12 @@ trait VOAutoResolution
         try {
             return $this->get($name);
         } catch (InvalidArgumentException) {
-            throw new InvalidArgumentException("Property '{$name}' does not exist on ".static::class);
+            throw new InvalidArgumentException("Property '{$name}' does not exist on " . static::class);
         }
     }
 
     public function __set(string $name, mixed $value): void
     {
-        throw new \LogicException("Cannot set property '{$name}' on immutable ValueObject ".static::class);
+        throw new \LogicException("Cannot set property '{$name}' on immutable ValueObject " . static::class);
     }
 }

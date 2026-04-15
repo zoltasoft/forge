@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zolta\Domain\Cache;
 
+use Illuminate\Support\Facades\Cache;
 use ReflectionClass;
 use ReflectionParameter;
 
@@ -85,7 +86,7 @@ final class ReflectionCache
             return self::$persistentAvailable;
         }
 
-        if (class_exists(\Illuminate\Support\Facades\Cache::class)) {
+        if (class_exists(Cache::class)) {
             self::$persistentAvailable = true;
 
             return true;
@@ -111,9 +112,9 @@ final class ReflectionCache
             return null;
         }
 
-        if (class_exists(\Illuminate\Support\Facades\Cache::class)) {
+        if (class_exists(Cache::class)) {
             try {
-                $v = \Illuminate\Support\Facades\Cache::get($key);
+                $v = Cache::get($key);
 
                 return is_array($v) ? $v : null;
             } catch (\Throwable) {
@@ -140,9 +141,9 @@ final class ReflectionCache
             return;
         }
 
-        if (class_exists(\Illuminate\Support\Facades\Cache::class)) {
+        if (class_exists(Cache::class)) {
             try {
-                \Illuminate\Support\Facades\Cache::forever($key, $value);
+                Cache::forever($key, $value);
             } catch (\Throwable) {
             }
 
@@ -358,12 +359,12 @@ final class ReflectionCache
         $k1 = self::persistentKeyForClass($class);
         $k2 = self::persistentKeyForClassAttributes($class);
 
-        if (class_exists(\Illuminate\Support\Facades\Cache::class)) {
+        if (class_exists(Cache::class)) {
             try {
-                \Illuminate\Support\Facades\Cache::forget($k1);
-                \Illuminate\Support\Facades\Cache::forget($k2);
+                Cache::forget($k1);
+                Cache::forget($k2);
                 foreach (self::methodKeysForClass($class) as $methodKey) {
-                    \Illuminate\Support\Facades\Cache::forget($methodKey);
+                    Cache::forget($methodKey);
                 }
             } catch (\Throwable) {
             }

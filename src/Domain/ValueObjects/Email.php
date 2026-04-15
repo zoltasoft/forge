@@ -17,14 +17,14 @@ use Zolta\Domain\Specifications\AllowedDomainSpecification;
 use Zolta\Domain\Transformers\DateTimeNormalizer;
 use Zolta\Domain\Transformers\EmailNormalizer;
 
-#[UsePolicy(EmailPolicy::class, [
-    'requireVerified' => false,
-    'trustedDomains' => ['gmail.com', 'protonmail.com'],
-])]
-#[UseInvariant(EmailVOInvariant::class, [
-    'allowFutureVerified' => false,
-    'domainRequiresVerified' => ['protonmail.com'],
-])]
+// #[UsePolicy(EmailPolicy::class, [
+//     'requireVerified' => false,
+//     'trustedDomains' => ['gmail.com', 'protonmail.com'],
+// ])]
+// #[UseInvariant(EmailVOInvariant::class, [
+//     'allowFutureVerified' => false,
+//     'domainRequiresVerified' => ['protonmail.com'],
+// ])]
 final class Email extends ValueObject
 {
     protected array $getters = ['address', 'verifiedAt'];
@@ -33,7 +33,7 @@ final class Email extends ValueObject
         #[Transform(EmailNormalizer::class, ['lowercase' => true, 'trim' => true])]
         #[UseRule(NonEmptyRule::class)]
         #[UseRule(MaxLengthRule::class, ['max' => 256])]
-        #[UseSpecification(AllowedDomainSpecification::class, ['allowed' => ['gmail.com', 'protonmail.com']])]
+        // #[UseSpecification(AllowedDomainSpecification::class, ['allowed' => ['gmail.com', 'protonmail.com']])]
         protected string $address,
 
         #[Transform(DateTimeNormalizer::class)]

@@ -54,12 +54,14 @@ namespace Symfony\Component\PasswordHasher\Hasher {
 }
 
 namespace Symfony\Component\Validator\Validator {
+    use Symfony\Component\Validator\ConstraintViolationInterface;
+
     interface ValidatorInterface
     {
         /**
-         * @return array<int, \Symfony\Component\Validator\ConstraintViolationInterface>
+         * @return array<int, ConstraintViolationInterface>
          */
-        public function validate(mixed $value, mixed $constraints = null, array $groups = null): array;
+        public function validate(mixed $value, mixed $constraints = null, ?array $groups = null): array;
     }
 }
 
@@ -72,7 +74,7 @@ namespace Symfony\Component\Validator {
         {
             return new class implements Validator\ValidatorInterface
             {
-                public function validate(mixed $value, mixed $constraints = null, array $groups = null): array
+                public function validate(mixed $value, mixed $constraints = null, ?array $groups = null): array
                 {
                     return [];
                 }

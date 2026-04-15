@@ -3,6 +3,7 @@
 namespace Zolta\Domain\ValueObjects;
 
 use Zolta\Domain\Attributes\UseRule;
+use Zolta\Domain\Interfaces\VO;
 use Zolta\Domain\Rules\MaxLengthRule;
 use Zolta\Domain\Rules\NonEmptyRule;
 
@@ -44,7 +45,7 @@ final class Description extends ValueObject
         return parent::get($key);
     }
 
-    public function equals(\Zolta\Domain\Interfaces\VO $other): bool
+    public function equals(VO $other): bool
     {
         return $other instanceof self && $this->value === $other->get('value');
     }

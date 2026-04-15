@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zolta\Domain\Contracts;
 
+use Zolta\Domain\Interfaces\VO;
+
 interface PolicyInterface
 {
     /**
@@ -11,5 +13,5 @@ interface PolicyInterface
      *
      * @param  array<string,mixed>  $options
      */
-    public function apply(\Zolta\Domain\Interfaces\VO $vo, array $options = []): mixed;
+    public function apply(VO $vo, array $options = []): mixed;
 }

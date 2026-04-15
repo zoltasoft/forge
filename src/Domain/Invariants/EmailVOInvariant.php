@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Zolta\Domain\Invariants;
 
 use Zolta\Domain\Contracts\Invariant;
+use Zolta\Domain\Interfaces\VO;
 use Zolta\Domain\ValueObjects\Email;
 
 final class EmailVOInvariant extends Invariant
 {
-    public function ensure(\Zolta\Domain\Interfaces\VO $vo, array $options = []): void
+    public function ensure(VO $vo, array $options = []): void
     {
         $this->assertVOType($vo, Email::class);
         /** @var Email $vo */

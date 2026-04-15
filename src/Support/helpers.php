@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
+use Illuminate\Foundation\Application;
 use Psr\Log\LoggerInterface;
 use Zolta\Support\ContainerRegistry;
 use Zolta\Support\ZoltaForgeContainer;
 
-if (! function_exists('app') && ! class_exists('Illuminate\\Foundation\\Application')) {
+if (! function_exists('app') && ! class_exists(Application::class)) {
     /**
      * Resolve a service from the global container.
      *
@@ -18,7 +19,7 @@ if (! function_exists('app') && ! class_exists('Illuminate\\Foundation\\Applicat
      * @param  class-string<T>|null  $id
      * @return T|ZoltaForgeContainer
      *
-     * @throws \RuntimeException if the container has not been registered
+     * @throws RuntimeException if the container has not been registered
      */
     function app(?string $id = null): mixed
     {
@@ -58,11 +59,11 @@ if (! function_exists('zoltaLogger')) {
                             return $logger;
                         }
                     }
-                } catch (\Throwable) {
+                } catch (Throwable) {
                     // ignore and continue to next id
                 }
             }
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // ignore
         }
 

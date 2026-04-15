@@ -6,10 +6,11 @@ namespace Zolta\Domain\Invariants;
 
 use InvalidArgumentException;
 use Zolta\Domain\Contracts\Invariant;
+use Zolta\Domain\Interfaces\VO;
 
 final class RoleNameInvariant extends Invariant
 {
-    public function ensure(\Zolta\Domain\Interfaces\VO $vo, array $options = []): void
+    public function ensure(VO $vo, array $options = []): void
     {
         // $v = trim((string)$value);
         // if ($v === '') throw new InvalidArgumentException("$param cannot be empty");

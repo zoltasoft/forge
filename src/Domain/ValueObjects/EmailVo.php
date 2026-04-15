@@ -9,6 +9,7 @@ use Zolta\Domain\Attributes\UseInvariant;
 use Zolta\Domain\Attributes\UsePolicy;
 use Zolta\Domain\Attributes\UseRule;
 use Zolta\Domain\Attributes\UseSpecification;
+use Zolta\Domain\Interfaces\VO;
 use Zolta\Domain\Invariants\EmailVOInvariant;
 use Zolta\Domain\Policies\EmailPolicy;
 use Zolta\Domain\Rules\MaxLengthRule;
@@ -57,7 +58,7 @@ final class EmailVo extends ValueObject
         return $this->verifiedAt <= new DateTimeImmutable;
     }
 
-    public function equals(\Zolta\Domain\Interfaces\VO $other): bool
+    public function equals(VO $other): bool
     {
         return $other instanceof self && $this->address === $other->get('address');
     }

@@ -30,7 +30,7 @@ final class ContainerRegistry
      */
     public static function get(): ZoltaForgeContainer
     {
-        if (! self::$zoltaForgeContainer instanceof \Zolta\Support\ZoltaForgeContainer) {
+        if (! self::$zoltaForgeContainer instanceof ZoltaForgeContainer) {
             throw new RuntimeException('Zolta container has not been registered.');
         }
 

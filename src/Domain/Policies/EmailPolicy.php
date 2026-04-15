@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Zolta\Domain\Policies;
 
 use Zolta\Domain\Contracts\Policy;
+use Zolta\Domain\Interfaces\VO;
 use Zolta\Domain\ValueObjects\Email;
 
 final class EmailPolicy extends Policy
 {
-    public function apply(\Zolta\Domain\Interfaces\VO $vo, array $options = []): mixed
+    public function apply(VO $vo, array $options = []): mixed
     {
         // type check
         if (! ($vo instanceof Email)) {

@@ -3,6 +3,7 @@
 namespace Zolta\Domain\ValueObjects;
 
 use Zolta\Domain\Attributes\UseRule;
+use Zolta\Domain\Interfaces\VO;
 use Zolta\Domain\Rules\NonEmptyRule;
 use Zolta\Domain\Rules\PasswordPolicyRule;
 
@@ -17,8 +18,6 @@ final class Password extends ValueObject
         protected ?VOConstructionContext $context = null
     ) {
         parent::__construct();
-        // $resolved = self::resolveInternal(['hash' => $hash], $context);
-        // $this->hash = $resolved['hash'];
     }
 
     public static function fromHashed(string $hashed, ?VOConstructionContext $context = null): static
@@ -26,7 +25,7 @@ final class Password extends ValueObject
         return new self($hashed, $context);
     }
 
-    public function equals(\Zolta\Domain\Interfaces\VO $other): bool
+    public function equals(VO $other): bool
     {
         return $other instanceof self && $this->hash === $other->get('hash');
     }

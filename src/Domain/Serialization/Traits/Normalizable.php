@@ -6,6 +6,7 @@ namespace Zolta\Domain\Serialization\Traits;
 
 use Illuminate\Contracts\Container\Container;
 use Zolta\Domain\Serialization\Contracts\NormalizerInterface;
+use Zolta\Domain\Serialization\Normalizer;
 
 trait Normalizable
 {
@@ -62,8 +63,8 @@ trait Normalizable
         // }
 
         // 3) Fallback to Symfony normalizer if available (non-Laravel environments)
-        if (class_exists(\Zolta\Domain\Serialization\Normalizer::class)) {
-            $instance = new \Zolta\Domain\Serialization\Normalizer;
+        if (class_exists(Normalizer::class)) {
+            $instance = new Normalizer;
             static::$normalizerInstance = $instance;
 
             return $instance;

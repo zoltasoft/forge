@@ -21,12 +21,12 @@ class QueryBuilder
         return $this;
     }
 
-    public function leftJoin(string $fromAlias, string $alias, string $conditionType = null, ?string $condition = null): self
+    public function leftJoin(string $fromAlias, string $alias, ?string $conditionType = null, ?string $condition = null): self
     {
         return $this;
     }
 
-    public function addSelect(string $select = null): self
+    public function addSelect(?string $select = null): self
     {
         return $this;
     }
@@ -43,15 +43,15 @@ class QueryBuilder
 
     public function expr(): Query\Expr
     {
-        return new Query\Expr();
+        return new Query\Expr;
     }
 
-    public function addOrderBy(string $sort, string $order = null): self
+    public function addOrderBy(string $sort, ?string $order = null): self
     {
         return $this;
     }
 
-    public function select(string|array $select = null): self
+    public function select(string|array|null $select = null): self
     {
         return $this;
     }
@@ -63,7 +63,7 @@ class QueryBuilder
 
     public function getQuery(): Query
     {
-        return new Query();
+        return new Query;
     }
 }
 

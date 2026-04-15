@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zolta\Framework;
 
+use Composer\Autoload\ClassLoader;
+use Composer\InstalledVersions;
 use JsonException;
 
 /**
@@ -70,7 +72,7 @@ final class FrameworkBootstrap
     {
         $metadata = self::metadataFromInstalledFiles();
 
-        if (class_exists(\Composer\InstalledVersions::class)) {
+        if (class_exists(InstalledVersions::class)) {
             $metadata = array_merge($metadata, self::metadataFromInstalledVersions());
         }
 
@@ -85,7 +87,7 @@ final class FrameworkBootstrap
         $metadata = [];
 
         try {
-            $entries = \Composer\InstalledVersions::getAllRawData();
+            $entries = InstalledVersions::getAllRawData();
         } catch (\Throwable) {
             return [];
         }
@@ -172,12 +174,12 @@ final class FrameworkBootstrap
 
     private static function composerAutoloadDirectory(): ?string
     {
-        if (! class_exists(\Composer\Autoload\ClassLoader::class)) {
+        if (! class_exists(ClassLoader::class)) {
             return null;
         }
 
         try {
-            $file = (new \ReflectionClass(\Composer\Autoload\ClassLoader::class))->getFileName();
+            $file = (new \ReflectionClass(ClassLoader::class))->getFileName();
         } catch (\ReflectionException) {
             return null;
         }

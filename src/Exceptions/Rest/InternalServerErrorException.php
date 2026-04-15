@@ -33,7 +33,7 @@ final class InternalServerErrorException extends BaseException
             ],
         ];
 
-        if ($this->previousThrowable instanceof \Throwable) {
+        if ($this->previousThrowable instanceof Throwable) {
             $context['debug'] = [
                 'previous_message' => $this->previousThrowable->getMessage(),
                 'previous_type' => $this->previousThrowable::class,

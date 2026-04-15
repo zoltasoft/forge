@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zolta\Domain\Contracts;
 
+use Zolta\Domain\Interfaces\VO;
+
 interface InvariantInterface
 {
     /**
@@ -11,5 +13,5 @@ interface InvariantInterface
      *
      * @param  array<string,mixed>  $options
      */
-    public function ensure(\Zolta\Domain\Interfaces\VO $vo, array $options = []): void;
+    public function ensure(VO $vo, array $options = []): void;
 }
