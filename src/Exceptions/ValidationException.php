@@ -31,6 +31,17 @@ final class ValidationException extends \Exception implements RenderableExceptio
         return $this->errors;
     }
 
+    public function context(): array
+    {
+        return [
+            'public' => [
+                'code' => 'validation.failed',
+                'message' => $this->getMessage(),
+                'errors' => $this->errors,
+            ],
+        ];
+    }
+
     public function toErrorArray(): array
     {
         return [
