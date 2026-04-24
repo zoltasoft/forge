@@ -241,5 +241,4 @@ Full documentation is available in the [`docs/`](./docs/) directory.
 
 ## License
 
-**Proprietary — © 2025 Redouane Taleb**  
-See [`LICENSE`](./LICENSE).
+[MIT](LICENSE) © 2026 Redouane Taleb
