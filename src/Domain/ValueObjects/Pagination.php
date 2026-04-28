@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zolta\Domain\ValueObjects;
 
 use Zolta\Domain\Interfaces\VO;
@@ -8,42 +10,17 @@ final class Pagination extends ValueObject
 {
     protected array $getters = ['items', 'total', 'perPage', 'currentPage', 'lastPage'];
 
-    /** @var list<mixed> */
-    protected array $items;
-
-    protected int $total;
-
-    protected int $perPage;
-
-    protected int $currentPage;
-
-    protected int $lastPage;
-
     /**
      * @param  list<mixed>  $items
      */
     public function __construct(
-        array $items,
-        int $total,
-        int $perPage,
-        int $currentPage,
-        int $lastPage,
-        ?VOConstructionContext $context = null
-    ) {
-        $resolved = self::resolveInternal([
-            'items' => $items,
-            'total' => $total,
-            'perPage' => $perPage,
-            'currentPage' => $currentPage,
-            'lastPage' => $lastPage,
-        ], $context);
-
-        $this->items = $resolved['items'];
-        $this->total = $resolved['total'];
-        $this->perPage = $resolved['perPage'];
-        $this->currentPage = $resolved['currentPage'];
-        $this->lastPage = $resolved['lastPage'];
-    }
+        /** @var list<mixed> */
+        public readonly array $items,
+        public readonly int $total,
+        public readonly int $perPage,
+        public readonly int $currentPage,
+        public readonly int $lastPage,
+    ) {}
 
     public function equals(VO $other): bool
     {
